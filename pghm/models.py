@@ -12,8 +12,8 @@ class Webcam(models.Model):
 	site = models.CharField(max_length=254, blank=True, null=True)
 	img = models.CharField(max_length=254, blank=True, null=True)
 	nom = models.CharField(max_length=254, blank=True, null=True)
-	lat = models.FloatField(blank=True, null=True)
-	lon = models.FloatField(blank=True, null=True)
+	#lat = models.FloatField(blank=True, null=True)
+	#lon = models.FloatField(blank=True, null=True)
 	yaw = models.IntegerField(blank=True, null=True)
 
 	def __str__(self):
