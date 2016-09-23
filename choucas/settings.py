@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
 import os
-import pghm
+import pghm#???
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -48,6 +48,7 @@ INSTALLED_APPS += [
     'leaflet',
     'djgeojson',    
     'pghm',
+    'gendloc',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -91,7 +92,7 @@ WSGI_APPLICATION = 'choucas.wsgi.application'
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 # if using SQLite db
-SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
+# SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
 #DATABASE_ROUTERS = ['pghm.routers.DataRoute', 'pghm.routers.UsersRoute']
 
@@ -101,12 +102,12 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.postgresql',
         #'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'ENGINE': 'django.contrib.gis.db.backends.postgis',        
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
+        'NAME': 'geodjango',
+        'USER': 'geodjango',
+        'PASSWORD': 'g1sdb',
         #'HOST': '127.0.0.1',   # https://docs.djangoproject.com/en/dev/ref/settings/#host
-        'HOST': '',             # defined by UNIX domain sockets (‘local’ lines in pg_hba.conf)
-        'PORT': '',             # can be empty so the default postgresql port is used (5432)
+        'HOST': 'localhost',             # defined by UNIX domain sockets (‘local’ lines in pg_hba.conf)
+        'PORT': '5432',             # can be empty so the default postgresql port is used (5432)
     },
 
 }
@@ -226,6 +227,10 @@ LEAFLET_CONFIG = {
         # }        
      }
 }
+
+# Callr config
+CALLR_NAME='pghm'
+CALLR_PWD='27kPH2PQxC'
 
 # Login url config
 LOGIN_REDIRECT_URL = '/'

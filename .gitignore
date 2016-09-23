@@ -41,6 +41,7 @@ build
 _build
 _static
 _templates
+migrations
 
 # Files to ignore
 *.db

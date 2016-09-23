@@ -24,6 +24,7 @@ from pghm.models import Webcam, Unite
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^gendloc/', include('gendloc.urls')),
     url(r'^$', pghm_views.home, name='home'),
     url(r'^camera.geojson$', pghm_views.MapLayer.as_view(model=Webcam, properties=('nom','img','site',)), name='camera'),
     #url(r'^webcams/', TemplateView.as_view(template_name='pghm/wcams.html'), name='wcams'),
