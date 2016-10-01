@@ -1,0 +1,76 @@
+		<div class="sidebar-pane" id="gendloc">
+			<h1>Géolocalisation</h1>
+				<input id="phone" type="tel"></br></br>
+				<select name="message">
+					<option value="1">Geoloc</option>
+					<option value="2">Tracking</option>
+					<option value="3">Photo</option>
+					<option value="4" disabled>Video</option>
+					
+				</select>
+				<select name="lang">
+					<option value="Français">Français</option>
+					<option value="Anglais" disabled >Anglais</option>
+					<option value="Espagnol" disabled >Espagnol</option>
+					<option value="Italien" disabled >Italien</option>
+					<option value="Allemand" disabled >Allemand</option>
+					<option value="Russe" disabled >Russe</option>
+				</select></br></br>
+				<form id="validite">
+					<input type="radio" name=val value="2" checked>2 HEURES
+					<input type="radio" name=val value="24">24 HEURES
+					<input type="radio" name=val value="168">SEMAINE
+					</br></br>
+					<INPUT type="button" onclick="sms()" value="ENVOYER SMS" >
+				</form>
+				</br>
+				<div id="res_sms"></div>
+				<div id="res_gendloc"></div>
+
+<!-- initialisation intlTelInput -->
+<script>
+	var unite = 'PG38';
+	var code = '02717';
+$("#phone").intlTelInput({
+		defaultCountry: "auto",
+        preferredCountries: ['fr', 'gb', 'it', 'de', 'es', 'ch'],
+		geoIpLookup: function(callback) {
+			$.get('http://ipinfo.io', function() {}, "jsonp").always(function(resp) {
+			var countryCode = (resp && resp.country) ? resp.country : "";
+			callback(countryCode);
+			});
+			},
+		utilsScript: "http://pghm-isere.com/gendloc/js/intl-tel-input/lib/libphonenumber/build/utils.js" // just for formatting/placeholders etc
+});
+
+<!-- appel envoi sms -->
+function sms() {
+	//récupération des valeurs
+	var telInput = $("#phone").intlTelInput("getNumber");
+	if (telInput) {
+    var val=$('input[name=val]:checked', '#validite').val()
+    message = $("#gendloc").find( "select[name='message']" ).val(),
+	lang = $("#gendloc").find( "select[name='lang']" ).val(),
+	//url = "http://pghm-isere.com/gendloc/sms/envoi_sms.php";
+	url = "gendloc/envoi";
+	// Send the data using post
+	var posting = $.get( url, { unite: unite , message: message, lang: lang, val: val, code: code, tel: telInput}) ;
+	// Put the results in a div
+	posting.done(function( data ) {
+    //var content = $( data.foo );
+    $("#res_sms").empty().append(data.foo);
+	$("#res_gendloc").load('gendloc/maj');
+	//$("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite);
+	})}
+ }
+ 
+//Mise à jour données gendloc 
+$("#res_gendloc").load('gendloc/maj');
+ setInterval(function(){
+$("#res_sms").empty();
+$("#res_gendloc").load('gendloc/maj')
+}, 15000);
+
+</script>
+			</div>
+		</div>

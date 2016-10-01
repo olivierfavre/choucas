@@ -1,0 +1,19 @@
+
+	<table id="res_loc">
+   
+  <thead> <!-- En-tête du tableau -->
+       <tr>
+	       <th>Telephone</th>
+           <th>Heure</th>
+		   <th>Statut</th>
+		   <th>Opérateur</th>
+		   <th style="display:none;">lat</th>
+		   <th style="display:none;">lon</th>
+		   <th style="display:none;">img</th>
+		</tr>
+   </thead><tbody style="text-align:left">
+        {% for sms in sms_list %}
+	<tr><td title="MARQUE MODELE">{{ sms.tel }}</td><td>{{sms.dt_envoi|date:"H:i" }}</td><td title='{{ sms.statut }}'>{{ sms.statut }}</td><td><a title="opérateur">opérateur</a></td><td style="display:none;" class="lat">LAT</td><td style="display:none;" class="lon">LON</td><td style="display:none;" class="photo">IMG</td></tr>
+{% endfor %}
+
+</tbody></table>

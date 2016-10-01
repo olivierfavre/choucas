@@ -1,0 +1,27 @@
+{% load static %}
+{% if perms.pghm.view_webcam %}
+var webcamIcon = L.Icon.extend({
+    		options: {
+        		iconUrl: '{% static "pghm/icon/webcam2.png" %}',
+				iconSize: new L.Point(50, 59),
+        		iconAnchor: new L.Point(25, 29),
+       			popupAnchor: new L.Point(0, 0),
+        		shadowUrl: null
+        	    }
+			});
+
+
+		var webcam = new L.GeoJSON.AJAX("{% url 'camera' %}", {onEachFeature:popUpWebcam, pointToLayer:  function (feature, latLng) {
+        	return new L.Marker(latLng, {
+        	    icon: new webcamIcon()
+				})
+    		}});
+
+		function popUpWebcam(feature, layer) {
+    		if (feature.properties && feature.properties.nom.toString()) {
+				var popUpContent= '<h3>'+feature.properties.nom+'</h3></br><a href="'+feature.properties.img+'" target="_blank"><img src="'+feature.properties.img+'"width="160" height="120"></a></br><a href="'+feature.properties.site+'" target="_blank">Site web</a>';
+				layer.bindPopup(popUpContent);
+   			}}	
+
+   		control.addOverlay( webcam, "WEBCAM", {groupName : "METIER"} );
+{% endif %}

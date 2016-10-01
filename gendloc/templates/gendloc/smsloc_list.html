@@ -1,0 +1,47 @@
+<body>
+	<table id="res_loc">
+   
+  <thead> <!-- En-tête du tableau -->
+       <tr>
+	       <th>Telephone</th>
+           <th>Heure</th>
+		   <th>Statut</th>
+		   <th>Opérateur</th>
+		   <th style="display:none;">lat</th>
+		   <th style="display:none;">lon</th>
+		</tr>
+   </thead><tbody style="text-align:left">
+        {% for sms in smsloc_list %}
+	<tr><td title="MARQUE MODELE">{{ sms.tel }}</td>
+		<td>
+        {% if sms.statut == 'OK' %}
+            {{ sms.loc.dt_geoloc|date:"H:i" }}
+        {% else %}
+            {{ sms.dt_envoi|date:"H:i" }}
+        {% endif %}
+        </td>
+        <td title='{{ sms.statut }}'>
+        {% if sms.statut == 'OK' %}
+            <i class="fa fa-map" title="Position GPS"></i>
+        {% elif sms.statut == 'PHOTO' %}
+            <a href={{sms.url}} target="_blank"><i class="fa fa-picture-o" title="Photo"></i></a>
+        {% elif sms.statut == 'ECHEC' %}
+        	<a title="Echec de l'envoi - Recommencez !">ECHEC</a>
+        {% elif sms.statut == 'ENVOI' %}
+            <a title="SMS en cours d'envoi. Patientez">ENVOI EN COURS</a>
+        {% elif sms.statut == 'SENT' %}
+            <a title="SMS envoyé pas encore reçu. Ne rien renvoyé ! peut-être hors couverture">ENVOYE</a>
+        {% elif sms.statut == 'PERMISSION' %}
+            <a title="Guidez le requérant pour autoriser le partage de la position">ERR.PERMISSION</a>
+        {% elif sms.statut == 'TIME_OUT' %}
+            <a title="Guidez le requérant pour recommencez GPS à ON et vue du ciel">ERR.TIME</a>
+        {% elif sms.statut == 'ERREUR_GPS' %}
+            <a title="Guidez le requérant pour recommencez">ERR.GPS</a>
+        {% else %}
+            {{ sms.statut }}
+        {% endif %}
+        </td><td><a title="opérateur">{{ sms.network }}</a></td><td class="lat" style="display:none;">{{sms.loc.geom.y }}</td><td class="lon" style="display:none;">{{sms.loc.geom.x}}</td></tr>
+{% endfor %}
+
+</tbody></table>
+</body>

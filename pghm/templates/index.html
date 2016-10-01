@@ -14,7 +14,7 @@
 	<!--bibliothèque intTelInput pour affichage saisie téléphone-->
 	<script src="http://pghm-isere.com/gendloc/js/intl-tel-input/build/js/intlTelInput.js"></script>
 	<link rel="stylesheet" href="http://pghm-isere.com/gendloc/js/intl-tel-input/build/css/intlTelInput.css">
-
+	<link rel="stylesheet" href="{% static 'gendloc/css/table.css' %}">
     <style>
         .leaflet-container { height: 100%; }
         .leaflet-left {left: 45;}
@@ -73,82 +73,7 @@
 		</div>
 
 		<!--tab GENDLOC-->
-		<div class="sidebar-pane" id="gendloc">
-			<h1>Géolocalisation</h1>
-				<input id="phone" type="tel"></br></br>
-				<select name="message">
-					<option value="Geoloc">Geoloc</option>
-					<option value="Tracking">Tracking</option>
-					<option value="APN">Photo</option>
-					<option value="APNV" disabled>Video</option>
-					
-				</select>
-				<select name="lang">
-					<option value="Français">Français</option>
-					<option value="Anglais" disabled >Anglais</option>
-					<option value="Espagnol" disabled >Espagnol</option>
-					<option value="Italien" disabled >Italien</option>
-					<option value="Allemand" disabled >Allemand</option>
-					<option value="Russe" disabled >Russe</option>
-				</select></br></br>
-				<form id="validite">
-					<input type="radio" name=val value="1" checked>2 HEURES
-					<input type="radio" name=val value="2">24 HEURES
-					<input type="radio" name=val value="3">DEFINITIF
-					</br></br>
-					<INPUT type="button" onclick="sms()" value="ENVOYER SMS" >
-				</form>
-				</br>
-				<div id="res_sms"></div>
-				<div id="res_gendloc"></div>
-
-<!-- initialisation intlTelInput -->
-<script>
-	var unite = 'PG38';
-	var code = '02717';
-$("#phone").intlTelInput({
-		defaultCountry: "auto",
-        preferredCountries: ['fr', 'gb', 'it', 'de', 'es', 'ch'],
-		geoIpLookup: function(callback) {
-			$.get('http://ipinfo.io', function() {}, "jsonp").always(function(resp) {
-			var countryCode = (resp && resp.country) ? resp.country : "";
-			callback(countryCode);
-			});
-			},
-		utilsScript: "http://pghm-isere.com/gendloc/js/intl-tel-input/lib/libphonenumber/build/utils.js" // just for formatting/placeholders etc
-});
-
-<!-- appel envoi sms -->
-function sms() {
-	//récupération des valeurs
-	var telInput = $("#phone").intlTelInput("getNumber");
-	if (telInput) {
-    var val=$('input[name=val]:checked', '#validite').val()
-    message = $("#gendloc").find( "select[name='message']" ).val(),
-	lang = $("#gendloc").find( "select[name='lang']" ).val(),
-	//url = "http://pghm-isere.com/gendloc/sms/envoi_sms.php";
-	url = "gendloc/envoi";
-	// Send the data using post
-	var posting = $.get( url, { unite: unite , message: message, lang: lang, val: val, code: code, tel: telInput}) ;
-	// Put the results in a div
-	posting.done(function( data ) {
-    var content = $( data );
-    //$( "#res_sms" ).empty().append( content );
-	//$("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite);
-	$("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite);
-	//{% url 'gendloc/maj' %}
-	})}
- }
- 
-//Mise à jour données gendloc 
-$("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite);
- setInterval(function(){
-$("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite)
-}, 15000);
-
-</script>
-			</div>
-		</div>
+		{% include "gendloc.html" %}
 
 		<!--MESSAGE--> 
 		<div class="sidebar-pane" id="messages">
@@ -182,6 +107,9 @@ $("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite)
 
     var skiOski = L.tileLayer('http://tiles.skimap.org/openskimap/{z}/{x}/{y}.png', {visible:true});
 
+//COUCHE GEOLOC
+	var loc = new L.GeoJSON.AJAX("{% url 'loc' %}");
+	
 	var baseMaps = [{
 			groupName : "IGN",
 			expanded : true,
@@ -198,7 +126,8 @@ $("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite)
 			expanded : true,
 			layers : {
 				"OSnowMap": skiOsnow,					
-				"OSkiMap": skiOski
+				"OSkiMap": skiOski,
+				"GEoloc": loc,
 			}
 		}];
 
@@ -212,33 +141,7 @@ $("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite)
 	var control = L.Control.styledLayerControl(baseMaps, overlays, options);
 
     //COUCHE WEBCAM
-    {% if perms.pghm.view_webcam %}
-		var webcamIcon = L.Icon.extend({
-    		options: {
-        		iconUrl: '{% static "pghm/icon/webcam2.png" %}',
-				iconSize: new L.Point(50, 59),
-        		iconAnchor: new L.Point(25, 29),
-       			popupAnchor: new L.Point(0, 0),
-        		shadowUrl: null
-        	    }
-			});
-
-
-		var webcam = new L.GeoJSON.AJAX("{% url 'camera' %}", {onEachFeature:popUpWebcam, pointToLayer:  function (feature, latLng) {
-        	return new L.Marker(latLng, {
-        	    icon: new webcamIcon()
-				})
-    		}});
-
-		function popUpWebcam(feature, layer) {
-    		if (feature.properties && feature.properties.nom.toString()) {
-				var popUpContent= '<h3>'+feature.properties.nom+'</h3></br><a href="'+feature.properties.img+'" target="_blank"><img src="'+feature.properties.img+'"width="160" height="120"></a></br><a href="'+feature.properties.site+'" target="_blank">Site web</a>';
-				layer.bindPopup(popUpContent);
-   			}}	
-
-   		control.addOverlay( webcam, "WEBCAM", {groupName : "METIER"} );
-
-	{% endif %}
+    {% include 'webcam.html' %}
 
 	map.addControl(control);
 
@@ -260,7 +163,23 @@ $("#res_gendloc").load('http://pghm-isere.com/gendloc/sms/maj.php?unite='+unite)
 			labelTemplateLng:"Lng {x}",
 			useLatLngOrder:true
 		}).addTo(map);
+
+	$(document).on('click', '#res_loc tr', function() {
+    $(this).closest("tr").siblings().removeClass("highlighted");
+    $(this).toggleClass("highlighted");
+	var x = $(this).find('.lon').text();
+	var y = $(this).find('.lat').text();
+	//var adresse = $(this).find('.photo').text();
+	//if (adresse){window.open($(this).find('.photo').text(), "PHOTO");}
+	if (x) {
+	map.setView([y, x],13);
+	//L.marker([y, x],{icon: pulsingIcon}).addTo(map);
 	}
+	});
+
+	}//main_map_init
+
+
 
     </script>
     
